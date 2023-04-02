@@ -24,6 +24,7 @@ public class SimHelper {
 
 	// Connect to server, setup buffers, and log in
 	SimHelper(String host, int port, String username) throws IOException {
+		// Based on https://www.baeldung.com/a-guide-to-java-sockets
 		socket = new Socket(InetAddress.getByName(host), port);
 		out = new PrintWriter(socket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
