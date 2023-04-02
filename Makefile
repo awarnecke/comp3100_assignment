@@ -9,9 +9,9 @@ build:
 	@echo " [MKDIR] build"
 	@mkdir -p build
 
-build/%.class: %.java build
+build/%.class: src/%.java build
 	@echo " [JAVAC] $<"
-	@$(JAVAC) -d build "$<"
+	@$(JAVAC) -d build -cp src "$<"
 
 clean:
 	@echo " [CLEAN]"
