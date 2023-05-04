@@ -12,6 +12,29 @@ public class SimClient {
 			// Connect to ds-server
 			SimHelper helper = new SimHelper("localhost", 50000, System.getProperty("user.name"));
 
+			// Choose scheduler
+			Scheduler scheduler = SimClient::scheduler_ff;
+			for (int i = 1; i < args.length; i++) {
+				if (args[i - 1].equals("-s")) {
+					switch (args[i]) {
+						case "ff":
+							scheduler = SimClient::scheduler_ff;
+							break;
+						case "fc":
+							scheduler = SimClient::scheduler_fc;
+							break;
+						case "lrr":
+							scheduler = SimClient::scheduler_lrr;
+							break;
+						default:
+							System.out.println("[ERROR] Invalid scheduler " + args[i]);
+							break;
+					}
+					break;
+				}
+			}
+
+			// LRR extra info
 			String largest = helper.servers.get(0).getType();
 			int largestCores = helper.servers.get(0).getTotalResources().cores;
 
@@ -39,7 +62,7 @@ public class SimClient {
 					case "JOBN": // New job
 					case "JOBP":
 						Job job = helper.parseJob(cmd);
-						scheduleJob(helper, job);
+						scheduler.schedule(helper, job);
 						break;
 					case "JCPL": // Job completed
 						helper.completeJob(cmd);
@@ -60,44 +83,42 @@ public class SimClient {
 		}
 	}
 
-	// First Free scheduler
-	/*static void scheduleJob(SimHelper helper, Job job) throws IOException {
-		boolean scheduled = false;
+	interface Scheduler {
+		void schedule(SimHelper helper, Job job) throws IOException;
+	}
 
-		// Find the smallest server and use that if possible
+	// First Fit scheduler
+	static void scheduler_ff(SimHelper helper, Job job) throws IOException {
+		// Find the smalest server that can fit the job now and use it
 		for (Server s : helper.servers) {
 			if (s.canFitJobNow(job)) {
 				helper.scheduleJob(s, job);
-				scheduled = true;
-				break;
+				return;
 			}
 		}
-
-		// We ran out of free servers, find the server with the least jobs and use it
-		if (!scheduled) {
-			Server best = helper.servers.get(helper.servers.size() - 1); // Pick a server that we know will work
-			for (Server s : helper.servers) {
-				if (best.jobCount() > s.jobCount() && s.canFitJob(job)) {
-					best = s;
-				}
+		// We ran out of servers, find the smallest server that can fit the job ever and use it instead
+		for (Server s : helper.servers) {
+			if (s.canFitJob(job)) {
+				helper.scheduleJob(s, job);
+				return;
 			}
-
-			helper.scheduleJob(best, job);
 		}
-	}*/
+	}
 
 	// First Capable scheduler
-	/*static void scheduleJob(SimHelper helper, Job job) throws IOException {
+	static void scheduler_fc(SimHelper helper, Job job) throws IOException {
+		// Find the smallest server that can run the job and use it
 		for (Server s : helper.servers) {
 			if (s.canFitJob(job)) {
 				helper.scheduleJob(s, job);
 				break;
 			}
 		}
-	}*/
+	}
 
 	// Largest Round Robin scheduler
-	static void scheduleJob(SimHelper helper, Job job) throws IOException {
+	static void scheduler_lrr(SimHelper helper, Job job) throws IOException {
+		// Schedule job on the previously saved "next server" and then increment
 		helper.scheduleJob(largestServers.get(nextServer), job);
 		nextServer++;
 		if (nextServer >= largestServers.size())
