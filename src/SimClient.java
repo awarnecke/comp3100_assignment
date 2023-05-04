@@ -26,6 +26,9 @@ public class SimClient {
 						case "bf":
 							scheduler = SimClient::scheduler_bf;
 							break;
+						case "wf":
+							scheduler = SimClient::scheduler_wf;
+							break;
 						case "lrr":
 							scheduler = SimClient::scheduler_lrr;
 							break;
@@ -139,6 +142,28 @@ public class SimClient {
 				return;
 			}
 		}
+	}
+
+	// Worst Fit Scheduler
+	static void scheduler_wf(SimHelper helper, Job job) throws IOException {
+		// Find the worst fit server
+		Server wf = null;
+		for (Server s : helper.servers) {
+			if (s.canFitJobNow(job) && (wf == null || s.getFreeResources().cores > wf.getFreeResources().cores)) {
+				wf = s;
+			}
+		}
+		if (wf != null) {
+			helper.scheduleJob(wf, job);
+			return;
+		}
+		// If nothing can fit the job now find the largest server that can fit the job
+		for (Server s : helper.servers) {
+			if (s.canFitJob(job) && (wf == null || s.getTotalResources().cores > wf.getTotalResources().cores)) {
+				wf = s;
+			}
+		}
+		helper.scheduleJob(wf, job);
 	}
 
 	// Largest Round Robin scheduler
