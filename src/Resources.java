@@ -12,6 +12,14 @@ public class Resources {
 		);
 	}
 
+	public boolean greaterThanEqual(Resources r) {
+		return (
+			cores >= r.cores &&
+			memory >= r.memory &&
+			disk >= r.disk
+		);
+	}
+
 	public void subtract(Resources r) {
 		cores -= r.cores;
 		memory -= r.memory;

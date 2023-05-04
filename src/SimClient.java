@@ -23,6 +23,9 @@ public class SimClient {
 						case "fc":
 							scheduler = SimClient::scheduler_fc;
 							break;
+						case "bf":
+							scheduler = SimClient::scheduler_bf;
+							break;
 						case "lrr":
 							scheduler = SimClient::scheduler_lrr;
 							break;
@@ -112,6 +115,28 @@ public class SimClient {
 			if (s.canFitJob(job)) {
 				helper.scheduleJob(s, job);
 				break;
+			}
+		}
+	}
+
+	// Best Fit scheduler
+	static void scheduler_bf(SimHelper helper, Job job) throws IOException {
+		// Find the smallest server that can fit the job now
+		Server bf = null;
+		for (Server s : helper.servers) {
+			if (s.canFitJobNow(job) && (bf == null || s.getFreeResources().cores < bf.getFreeResources().cores)) {
+				bf = s;
+			}
+		}
+		if (bf != null) {
+			helper.scheduleJob(bf, job);
+			return;
+		}
+		// If nothing can fit the job now find the smallest server that can fit the job
+		for (Server s : helper.servers) {
+			if (s.canFitJob(job)) {
+				helper.scheduleJob(s, job);
+				return;
 			}
 		}
 	}

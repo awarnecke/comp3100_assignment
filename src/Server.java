@@ -20,11 +20,11 @@ public class Server {
 	}
 
 	public boolean canFitJob(Job job) {
-		return resources.greaterThan(job.requirements);
+		return resources.greaterThanEqual(job.requirements);
 	}
 
 	public boolean canFitJobNow(Job job) {
-		return free.greaterThan(job.requirements);
+		return free.greaterThanEqual(job.requirements);
 	}
 
 	public void addJob(Job job) {
