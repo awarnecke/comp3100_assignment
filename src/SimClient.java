@@ -7,15 +7,38 @@ public class SimClient {
 	static private List<Server> largestServers;
 	static int nextServer = 0;
 
+	// Help message
+	// TODO: automatically create a list of schedulers
+	static final String helpmsg = """
+			Sim Client Usage:
+			  java SimClient (-h / --help)
+			  java SimClient (-s / --scheduler) [scheduler]
+
+			Available Schedulers:
+			  ff
+			  fc
+			  bf
+			  wf
+			  lrr
+			""";
+
 	public static void main(String[] args) {
+		// If help is requested then show that and exit
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-h") || args[i].equals("--help")) {
+				System.out.print(helpmsg);
+				return;
+			}
+		}
+
 		try {
 			// Connect to ds-server
 			SimHelper helper = new SimHelper("localhost", 50000, System.getProperty("user.name"));
 
-			// Choose scheduler
+			// Choose scheduler, default is ff
 			Scheduler scheduler = SimClient::scheduler_ff;
 			for (int i = 1; i < args.length; i++) {
-				if (args[i - 1].equals("-s")) {
+				if (args[i - 1].equals("-s") || args[i - 1].equals("--scheduler")) {
 					switch (args[i]) {
 						case "ff":
 							scheduler = SimClient::scheduler_ff;
