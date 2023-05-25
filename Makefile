@@ -19,4 +19,4 @@ clean:
 
 install: $(OBJS)
 	@echo " [COPY]  $(PREFIX)"
-	@cp $(OBJS) $(PREFIX)
+	@cp build/*.class $(PREFIX)
