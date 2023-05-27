@@ -20,6 +20,12 @@ public class Resources {
 		);
 	}
 
+	public void add(Resources r) {
+		cores += r.cores;
+		memory += r.memory;
+		disk += r.memory;
+	}
+
 	public void subtract(Resources r) {
 		cores -= r.cores;
 		memory -= r.memory;
@@ -36,5 +42,11 @@ public class Resources {
 		cores = r.cores;
 		memory = r.memory;
 		disk = r.disk;
+	}
+
+	Resources() {
+		cores = 0;
+		memory = 0;
+		disk = 0;
 	}
 }

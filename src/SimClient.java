@@ -15,6 +15,7 @@ public class SimClient {
 			  java SimClient (-s / --scheduler) [scheduler]
 
 			Available Schedulers:
+			  off
 			  ff
 			  fc
 			  bf
@@ -36,10 +37,13 @@ public class SimClient {
 			SimHelper helper = new SimHelper("localhost", 50000, System.getProperty("user.name"));
 
 			// Choose scheduler, default is ff
-			Scheduler scheduler = SimClient::scheduler_ff;
+			Scheduler scheduler = SimClient::scheduler_off;
 			for (int i = 1; i < args.length; i++) {
 				if (args[i - 1].equals("-s") || args[i - 1].equals("--scheduler")) {
 					switch (args[i]) {
+						case "off":
+							scheduler = SimClient::scheduler_off;
+							break;
 						case "ff":
 							scheduler = SimClient::scheduler_ff;
 							break;
@@ -116,9 +120,33 @@ public class SimClient {
 		void schedule(SimHelper helper, Job job) throws IOException;
 	}
 
+	// Optimised First Fit scheduler
+	static void scheduler_off(SimHelper helper, Job job) throws IOException {
+		// Find the first server that can fit the job
+		for (Server s : helper.servers) {
+			if (s.canFitJobNow(job)) {
+				helper.scheduleJob(s, job);
+				return;
+			}
+		}
+		// We ran out of servers, find the server with the shortest queue relative to its size and use it instead
+		Server best = helper.servers.get(0);
+		float bestrqd = (float)best.getUsedResources().cores / (float)best.getTotalResources().cores;
+		for (Server s : helper.servers) {
+			if (s.canFitJob(job)) {
+				float rqd = (float)s.getUsedResources().cores / (float)s.getTotalResources().cores;
+				if (rqd < bestrqd) {
+					bestrqd = rqd;
+					best = s;
+				}
+			}
+		}
+		helper.scheduleJob(best, job);
+	}
+
 	// First Fit scheduler
 	static void scheduler_ff(SimHelper helper, Job job) throws IOException {
-		// Find the smalest server that can fit the job now and use it
+		// Find the smallest server that can fit the job now and use it
 		for (Server s : helper.servers) {
 			if (s.canFitJobNow(job)) {
 				helper.scheduleJob(s, job);

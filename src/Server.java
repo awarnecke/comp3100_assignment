@@ -58,6 +58,14 @@ public class Server {
 		return free;
 	}
 
+	public Resources getUsedResources() {
+		Resources used = new Resources();
+		for (Job j : jobs) {
+			used.add(j.requirements);
+		}
+		return used;
+	}
+
 	Server(String t, int i, Resources r, String s) {
 		type = t;
 		id = i;
