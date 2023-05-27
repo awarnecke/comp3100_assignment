@@ -13,9 +13,10 @@ public class SimClient {
 			Sim Client Usage:
 			  java SimClient (-h / --help)
 			  java SimClient (-s / --scheduler) [scheduler]
+			  java SimClient
 
 			Available Schedulers:
-			  off
+			  fff (default)
 			  ff
 			  fc
 			  bf
@@ -36,13 +37,13 @@ public class SimClient {
 			// Connect to ds-server
 			SimHelper helper = new SimHelper("localhost", 50000, System.getProperty("user.name"));
 
-			// Choose scheduler, default is ff
-			Scheduler scheduler = SimClient::scheduler_off;
+			// Choose scheduler, default is fff
+			Scheduler scheduler = SimClient::scheduler_fff;
 			for (int i = 1; i < args.length; i++) {
 				if (args[i - 1].equals("-s") || args[i - 1].equals("--scheduler")) {
 					switch (args[i]) {
-						case "off":
-							scheduler = SimClient::scheduler_off;
+						case "fff":
+							scheduler = SimClient::scheduler_fff;
 							break;
 						case "ff":
 							scheduler = SimClient::scheduler_ff;
@@ -120,8 +121,8 @@ public class SimClient {
 		void schedule(SimHelper helper, Job job) throws IOException;
 	}
 
-	// Optimised First Fit scheduler
-	static void scheduler_off(SimHelper helper, Job job) throws IOException {
+	// Fair First Fit scheduler
+	static void scheduler_fff(SimHelper helper, Job job) throws IOException {
 		// Find the first server that can fit the job
 		for (Server s : helper.servers) {
 			if (s.canFitJobNow(job)) {
